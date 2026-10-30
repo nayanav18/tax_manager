@@ -1,0 +1,33 @@
+ 
+import { useState } from 'react';
+import TopNav from './TopNav';
+import Sidebar from './Sidebar';
+ 
+export default function AppLayout({ children, status, sidebarProps }) {
+  const [collapsed, setCollapsed] = useState(false);
+ 
+  const toggleSidebar = () => {
+    setCollapsed(prev => !prev);
+  };
+ 
+  return (
+    <>
+      <TopNav
+        status={status}
+        onToggleSidebar={toggleSidebar}
+      />
+ 
+      <div className={`app ${collapsed ? 'sidebar-collapsed' : ''}`}>
+        <Sidebar
+          {...sidebarProps}
+          collapsed={collapsed}
+        />
+ 
+        <main className="main">
+          {children}
+        </main>
+      </div>
+    </>
+  );
+}
+ 
