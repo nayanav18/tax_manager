@@ -1,0 +1,129 @@
+ 
+import { ALL_MODULES, MODULE_BOILERPLATE } from '../data/modules';
+ 
+export default function Sidebar({
+  currentStep,
+  selectedModules,
+  activeModuleTab,
+  setActiveModuleTab,
+  goToStep,
+  localInputs,
+  collapsed
+}) {
+  const steps = [
+    [1, 'Market Setup', 'Entity details'],
+    [2, 'Upload Transactions', 'Import data'],
+    [3, 'Module Input', 'Local information'],
+    [4, 'Review & Export', 'Final document'],
+  ];
+ 
+  const mods = ALL_MODULES.filter(m => selectedModules.has(m.id));
+ 
+  const hasModuleInput = (mod) => {
+    const bp = MODULE_BOILERPLATE[mod.id];
+ 
+    return bp?.localFields?.some(
+      f => (localInputs[f.id] || '').trim().length > 0
+    ) || false;
+  };
+ 
+  return (
+    <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+      <div className="sidebar-heading">
+        {!collapsed && (
+          <div>
+            <span className="sidebar-eyebrow">WORKSPACE</span>
+            <p>Navigation</p>
+          </div>
+        )}
+      </div>
+ 
+      <div className="sidebar-section-title">
+        {!collapsed && 'WORKFLOW'}
+      </div>
+ 
+      <ul className="step-list">
+        {steps.map(([step, label, description]) => (
+          <li
+            key={step}
+            className={`step-item ${
+              currentStep === step ? 'active' : ''
+            } ${currentStep > step ? 'completed' : ''}`}
+            onClick={() => goToStep(step)}
+            title={collapsed ? label : ''}
+          >
+            <span className="step-num">
+              {currentStep > step ? '✓' : step}
+            </span>
+ 
+            {!collapsed && (
+              <span className="step-text">
+                <strong>{label}</strong>
+                <small>{description}</small>
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+ 
+      <div className="sidebar-divider" />
+ 
+      <div className="sidebar-section-title">
+        {!collapsed && 'DETECTED MODULES'}
+      </div>
+ 
+      <div className="sidebar-module-summary">
+        {collapsed ? (
+          <span className="collapsed-module-count" title={`${mods.length} selected modules`}>
+            {mods.length}
+          </span>
+        ) : (
+          <span>{mods.length} modules selected</span>
+        )}
+      </div>
+ 
+      <ul className="module-list expanded">
+        {mods.length === 0 ? (
+          !collapsed && (
+            <li className="module-empty">
+              <span className="empty-module-icon">＋</span>
+              <span>Upload a CSV to detect modules</span>
+            </li>
+          )
+        ) : (
+          mods.map(mod => (
+            <li
+              key={mod.id}
+              className={`module-item ${
+                mod.id === activeModuleTab ? 'active' : ''
+              }`}
+              onClick={() => {
+                setActiveModuleTab(mod.id);
+                goToStep(3);
+              }}
+              title={collapsed ? `${mod.section} ${mod.name}` : ''}
+            >
+              <span className={`dot ${
+                hasModuleInput(mod) ? 'filled' : 'empty'
+              }`} />
+ 
+              {!collapsed && (
+                <span className="module-name">
+                  {mod.section} {mod.name}
+                </span>
+              )}
+            </li>
+          ))
+        )}
+      </ul>
+ 
+      {!collapsed && (
+        <div className="sidebar-footer">
+          <span className="footer-mark">TP</span>
+          <span>Transfer Pricing Workspace</span>
+        </div>
+      )}
+    </aside>
+  );
+}
+ 
